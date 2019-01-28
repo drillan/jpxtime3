@@ -1,6 +1,6 @@
 # jpxtime3
 
-manage JPX(Nikkei 225 derivatives) trading hours and days
+JPX指数先物オプションの取引日や取引時間, 満期日などを管理
 
 ## Installation
 
@@ -96,7 +96,7 @@ jpxtime3.get_t(datetime(2015, 12, 30, 9), jpxtime3.get_sq((2016, 1)), 245)
 
 ```python
 # 取引日を取得(ナイトセッションの場合は翌営業日)
-get_nominal_trading_day(datetime.datetime(2019, 1, 4, 17, 0))
+jpxtime3.get_nominal_trading_day(datetime.datetime(2019, 1, 4, 17, 0))
 ```
 
 ```python
@@ -105,7 +105,7 @@ datetime.date(2019, 1, 7)
 
 ```python
 # 翌取引日の寄付の日時を取得
-get_next_trading(datetime.datetime(2019, 1, 4, 9), "open")
+jpxtime3.get_next_trading(datetime.datetime(2019, 1, 4, 9), "open")
 ```
 
 ```python
@@ -114,7 +114,7 @@ datetime.datetime(2019, 1, 7, 9)
 
 ```python
 # 翌取引日の大引けの日時を取得
-get_next_trading(datetime.datetime(2019, 1, 7, 23), "close")
+jpxtime3.get_next_trading(datetime.datetime(2019, 1, 7, 23), "close")
 ```
 
 ```python
@@ -123,7 +123,7 @@ datetime.datetime(2019, 1, 9, 15, 15)
 
 ```python
 # 前取引日の寄付の日時を取得
-get_prev_trading(datetime.datetime(2019, 1, 7, 10), "open")
+jpxtime3.get_prev_trading(datetime.datetime(2019, 1, 7, 10), "open")
 ```
 
 ```python
@@ -132,7 +132,7 @@ datetime.datetime(2019, 1, 4, 9)
 
 ```python
 # 前取引日の大引けの日時を取得
-get_prev_trading(datetime.datetime(2019, 1, 4, 10), "close")
+jpxtime3.get_prev_trading(datetime.datetime(2019, 1, 4, 10), "close")
 ```
 
 ```python
