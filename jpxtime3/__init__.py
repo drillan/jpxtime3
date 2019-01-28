@@ -1,15 +1,8 @@
-
-# coding: utf-8
-
-# In[ ]:
-
 import os
 import pickle
 from datetime import time, date, datetime, timedelta
 from dateutil.parser import parse
 
-
-# In[ ]:
 
 ONE_YEAR_TO_SECONDS_365 = 31536000
 ONE_YEAR_TO_SECONDS_245 = 21168000
@@ -19,10 +12,7 @@ sq_days = 0
 datadir = os.path.dirname(os.path.abspath(__file__))
 
 
-# In[ ]:
-
 class DaySession:
-
     def __init__(self, dt=datetime.now()):
         self.opening = time(9, 0)
         self.pre_closing = time(15, 10)
@@ -30,7 +20,6 @@ class DaySession:
 
 
 class NightSession:
-
     def __init__(self, dt=datetime.now()):
         self.opening = time(16, 30)
         if dt >= datetime(2016, 7, 19):
@@ -50,8 +39,6 @@ class NightSession:
             self.closing = time(19, 0)
 
 
-# In[ ]:
-
 class Session:
     def __init__(self, dt=datetime.now()):
         init_holiday_jpx()
@@ -62,13 +49,13 @@ class Session:
         self.ns = NightSession(dt)
         self.t = dt.time()
         self.session_dict = {
-            0: 'Regular_Session(NS)',
-            1: 'Closing_Auction(NS)',
-            2: 'Closed(NS2DS)',
-            3: 'Regular_Session(DS)',
-            4: 'Closing_Auction(DS)',
-            5: 'Closed(DS2NS)',
-            6: 'Regular_Session(NS)'
+            0: "Regular_Session(NS)",
+            1: "Closing_Auction(NS)",
+            2: "Closed(NS2DS)",
+            3: "Regular_Session(DS)",
+            4: "Closing_Auction(DS)",
+            5: "Closed(DS2NS)",
+            6: "Regular_Session(NS)",
         }
         self.session = self.get_ses()
         self.session_name = self.session_dict[self.session]
@@ -82,8 +69,7 @@ class Session:
         is_ses4 = lambda x: self.ds.pre_closing <= x <= self.ds.closing
         is_ses5 = lambda x: self.ds.closing < x < self.ns.opening
         is_ses6 = lambda x: self.ns.opening <= x
-        is_ses = (is_ses0, is_ses1, is_ses2, is_ses3, is_ses4, is_ses5,
-                  is_ses6)
+        is_ses = (is_ses0, is_ses1, is_ses2, is_ses3, is_ses4, is_ses5, is_ses6)
         for i, func in enumerate(is_ses):
             if func(self.t):
                 return i
@@ -96,10 +82,10 @@ class Session:
             1: self.is_open_ses1,
             3: self.is_open_ses3,
             4: self.is_open_ses4,
-            6: self.is_open_ses6
+            6: self.is_open_ses6,
         }
         return func_dict[self.session]()
-    
+
     def is_holiday(self, d, wd):
         if wd in (5, 6) or d in holiday_jpx:
             return True
@@ -141,8 +127,6 @@ class Session:
             return 1
 
 
-# In[ ]:
-
 class Sq:
     def __init__(self, year=365):
         init_sq_days()
@@ -161,12 +145,12 @@ class Sq:
 
         def _str(data):
             if len(data) == 4:
-                data = '20' + data + '01'
+                data = "20" + data + "01"
             elif len(data) == 6:
-                if data[:2] == '20':
-                    data = data + '01'
+                if data[:2] == "20":
+                    data = data + "01"
                 else:
-                    data = '20' + data
+                    data = "20" + data
             dt = parse(data)
             return dt.date().timetuple()[:2]
 
@@ -186,7 +170,7 @@ class Sq:
             str: _str,
             int: _int,
             datetime: _datetime,
-            date: _date
+            date: _date,
         }
         return func_dict[data_type](data)
 
@@ -213,28 +197,27 @@ class Sq:
         t = t1 - t0
         if self.year == 245:
             holidays = sum((x for x in self.gen_is_holiday(t0_date, t1_date)))
-            t = (t.total_seconds() - holidays * ONE_DAY_TO_SECONDS
-                 ) / ONE_YEAR_TO_SECONDS_245
+            t = (
+                t.total_seconds() - holidays * ONE_DAY_TO_SECONDS
+            ) / ONE_YEAR_TO_SECONDS_245
         else:
             t = t.total_seconds() / ONE_YEAR_TO_SECONDS_365
         return t
 
 
-# In[ ]:
-
 def init_holiday_jpx():
     global holiday_jpx
     if not holiday_jpx:
-        file = os.path.join(datadir, 'holiday_jpx.pickle4')
-        with open(file, 'rb') as f:
+        file = os.path.join(datadir, "holiday_jpx.pickle4")
+        with open(file, "rb") as f:
             holiday_jpx = pickle.load(f)
 
 
 def init_sq_days():
     global sq_days
     if not sq_days:
-        file = os.path.join(datadir, 'sq.pickle4')
-        with open(file, 'rb') as f:
+        file = os.path.join(datadir, "sq.pickle4")
+        with open(file, "rb") as f:
             sq_days = pickle.load(f)
 
 
@@ -250,3 +233,46 @@ def get_t(t0, t1, year=365):
     return Sq(year=year).get_t(t0, t1)
 
 
+def get_next_trading_day_adj(dt):
+    opening = DaySession().opening
+    adj_dt = datetime.combine(dt.date(), opening)
+    for _ in range(20):
+        adj_dt = adj_dt + timedelta(days=1)
+        if is_open(adj_dt):
+            return adj_dt.date()
+
+
+def get_nominal_trading_day(dt):
+    ses = Session(dt)
+    if ses.session in (0, 1, 6):
+        return get_next_trading_day_adj(dt)
+    elif ses.session in (3, 4):
+        return dt.date()
+    else:
+        return None
+
+
+def get_next_trading(dt, open_or_close):
+    nominal_trading_day = get_nominal_trading_day(dt)
+    if not nominal_trading_day:
+        return None
+    
+    ses = {"open": DaySession().opening, "close": DaySession().closing}[open_or_close]
+    d = datetime.combine(nominal_trading_day, ses)
+    for _ in range(20):
+        d = d + timedelta(days=1)
+        if is_open(d):
+            return d
+
+
+def get_prev_trading(dt, open_or_close):
+    nominal_trading_day = get_nominal_trading_day(dt)
+    if not nominal_trading_day:
+        return None
+    
+    ses = {"open": DaySession().opening, "close": DaySession().closing}[open_or_close]
+    d = datetime.combine(nominal_trading_day, ses)
+    for _ in range(20):
+        d = d - timedelta(days=1)
+        if is_open(d):
+            return d
