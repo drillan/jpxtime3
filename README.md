@@ -105,16 +105,16 @@ datetime.date(2019, 1, 7)
 
 ```python
 # 翌取引日の寄付の日時を取得
-jpxtime3.get_next_trading(datetime.datetime(2019, 1, 4, 9), "open")
+jpxtime3.get_next_opening(datetime.datetime(2019, 1, 4, 9))
 ```
 
 ```python
-datetime.datetime(2019, 1, 7, 9)
+datetime.datetime(2019, 1, 4, 16, 30)
 ```
 
 ```python
 # 翌取引日の大引けの日時を取得
-jpxtime3.get_next_trading(datetime.datetime(2019, 1, 7, 23), "close")
+jpxtime3.get_next_closing(datetime.datetime(2019, 1, 7, 23))
 ```
 
 ```python
@@ -123,16 +123,16 @@ datetime.datetime(2019, 1, 9, 15, 15)
 
 ```python
 # 前取引日の寄付の日時を取得
-jpxtime3.get_prev_trading(datetime.datetime(2019, 1, 7, 10), "open")
+jpxtime3.get_prev_opening(datetime.datetime(2019, 1, 7, 10))
 ```
 
 ```python
-datetime.datetime(2019, 1, 4, 9)
+datetime.datetime(2018, 12, 28, 16, 30)
 ```
 
 ```python
 # 前取引日の大引けの日時を取得
-jpxtime3.get_prev_trading(datetime.datetime(2019, 1, 4, 10), "close")
+jpxtime3.get_prev_closing(datetime.datetime(2019, 1, 4, 10))
 ```
 
 ```python

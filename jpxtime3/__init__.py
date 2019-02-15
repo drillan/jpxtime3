@@ -242,6 +242,15 @@ def get_next_trading_day_adj(dt):
             return adj_dt.date()
 
 
+def get_prev_trading_day_adj(dt):
+    opening = DaySession().opening
+    adj_dt = datetime.combine(dt.date(), opening)
+    for _ in range(20):
+        adj_dt = adj_dt - timedelta(days=1)
+        if is_open(adj_dt):
+            return adj_dt.date()
+
+
 def get_nominal_trading_day(dt):
     ses = Session(dt)
     if ses.session in (0, 1, 6):
@@ -252,26 +261,49 @@ def get_nominal_trading_day(dt):
         return None
 
 
-def get_next_trading(dt, open_or_close):
-    nominal_trading_day = get_nominal_trading_day(dt)
-    if not nominal_trading_day:
-        return None
-    
-    ses = {"open": DaySession().opening, "close": DaySession().closing}[open_or_close]
-    d = datetime.combine(nominal_trading_day, ses)
+class SessionTime(Session):
+    def __init__(self, dt):
+        super().__init__()
+        nominal_trading_day = get_nominal_trading_day(dt)
+        self.nominal_trading_day = nominal_trading_day
+        self.opening_time_ds = datetime.combine(nominal_trading_day, self.ds.opening)
+        self.closing_time_ds = datetime.combine(nominal_trading_day, self.ds.closing)
+        
+        nominal_prev_day = get_prev_trading_day_adj(self.closing_time_ds)
+        self.opening_time_ns = datetime.combine(nominal_prev_day, self.ns.opening)
+        self.closing_time_ns = datetime.combine(nominal_prev_day, self.ns.closing)
+
+
+def get_next_closing(dt):
+    session_time = SessionTime(dt)
+    d = session_time.closing_time_ds
     for _ in range(20):
         d = d + timedelta(days=1)
         if is_open(d):
             return d
 
 
-def get_prev_trading(dt, open_or_close):
-    nominal_trading_day = get_nominal_trading_day(dt)
-    if not nominal_trading_day:
-        return None
-    
-    ses = {"open": DaySession().opening, "close": DaySession().closing}[open_or_close]
-    d = datetime.combine(nominal_trading_day, ses)
+def get_next_opening(dt):
+    session_time = SessionTime(dt)
+    d = session_time.opening_time_ns
+    for _ in range(20):
+        d = d + timedelta(days=1)
+        if is_open(d):
+            return d
+
+
+def get_prev_closing(dt):
+    session_time = SessionTime(dt)
+    d = session_time.closing_time_ds
+    for _ in range(20):
+        d = d - timedelta(days=1)
+        if is_open(d):
+            return d
+
+
+def get_prev_opening(dt):
+    session_time = SessionTime(dt)
+    d = session_time.opening_time_ns
     for _ in range(20):
         d = d - timedelta(days=1)
         if is_open(d):

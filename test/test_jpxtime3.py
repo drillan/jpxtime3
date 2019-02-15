@@ -72,57 +72,75 @@ class TestTradingDay(unittest.TestCase):
             get_nominal_trading_day(datetime.datetime(2019, 4, 27, 3, 0)),
             datetime.date(2019, 5, 7)
         )
-    
-    def test_get_next_trading(self):
-        from jpxtime3 import get_next_trading
-        
+
+
+class TestSessionTime(unittest.TestCase):
+    def test_session_time(self):
+        from jpxtime3 import SessionTime
+
         self.assertEqual(
-            get_next_trading(datetime.datetime(2019, 1, 4, 9), "open"),
-            datetime.datetime(2019, 1, 7, 9)
-        )
-        self.assertEqual(
-            get_next_trading(datetime.datetime(2019, 1, 4, 10), "close"),
-            datetime.datetime(2019, 1, 7, 15, 15)
-        )
-        self.assertEqual(
-            get_next_trading(datetime.datetime(2019, 1, 7, 10), "open"),
-            datetime.datetime(2019, 1, 8, 9)
-        )
-        self.assertEqual(
-            get_next_trading(datetime.datetime(2019, 1, 7, 23), "open"),
-            datetime.datetime(2019, 1, 9, 9)
-        )
-        self.assertEqual(
-            get_next_trading(datetime.datetime(2019, 1, 7, 23), "close"),
-            datetime.datetime(2019, 1, 9, 15, 15)
-        )
-        self.assertIsNone(
-            get_next_trading(datetime.datetime(2019, 1, 4, 8), "open")
-        )
-    
-    def test_get_prev_trading(self):
-        from jpxtime3 import get_prev_trading
-        
-        self.assertEqual(
-            get_prev_trading(datetime.datetime(2019, 1, 4, 9), "open"),
-            datetime.datetime(2018, 12, 28, 9)
-        )
-        self.assertEqual(
-            get_prev_trading(datetime.datetime(2019, 1, 4, 10), "close"),
-            datetime.datetime(2018, 12, 28, 15, 15)
-        )
-        self.assertEqual(
-            get_prev_trading(datetime.datetime(2019, 1, 7, 10), "open"),
+            SessionTime(datetime.datetime(2019, 1, 4, 9)).opening_time_ds,
             datetime.datetime(2019, 1, 4, 9)
         )
         self.assertEqual(
-            get_prev_trading(datetime.datetime(2019, 1, 7, 23), "open"),
-            datetime.datetime(2019, 1, 7, 9)
+            SessionTime(datetime.datetime(2019, 1, 4, 9)).closing_time_ds,
+            datetime.datetime(2019, 1, 4, 15, 15)
         )
         self.assertEqual(
-            get_prev_trading(datetime.datetime(2019, 1, 7, 23), "close"),
+            SessionTime(datetime.datetime(2019, 1, 4, 9)).opening_time_ns,
+            datetime.datetime(2018, 12, 28, 16, 30)
+        )
+        self.assertEqual(
+            SessionTime(datetime.datetime(2019, 1, 4, 9)).closing_time_ns,
+            datetime.datetime(2018, 12, 28, 5, 30)
+        )
+
+
+class TestDrift(unittest.TestCase):
+    def test_get_next_trading(self):
+        from jpxtime3 import get_next_opening, get_next_closing
+        
+        self.assertEqual(
+            get_next_opening(datetime.datetime(2019, 1, 4, 9)),
+            datetime.datetime(2019, 1, 4, 16, 30)
+        )
+        self.assertEqual(
+            get_next_closing(datetime.datetime(2019, 1, 4, 10)),
             datetime.datetime(2019, 1, 7, 15, 15)
         )
-        self.assertIsNone(
-            get_prev_trading(datetime.datetime(2019, 1, 4, 8), "open")
+        self.assertEqual(
+            get_next_opening(datetime.datetime(2019, 1, 7, 10)),
+            datetime.datetime(2019, 1, 7, 16, 30)
+        )
+        self.assertEqual(
+            get_next_opening(datetime.datetime(2019, 1, 7, 23)),
+            datetime.datetime(2019, 1, 8, 16, 30)
+        )
+        self.assertEqual(
+            get_next_closing(datetime.datetime(2019, 1, 7, 23)),
+            datetime.datetime(2019, 1, 9, 15, 15)
+        )
+
+    def test_get_prev_trading(self):
+        from jpxtime3 import get_prev_opening, get_prev_closing
+        
+        self.assertEqual(
+            get_prev_opening(datetime.datetime(2019, 1, 4, 9)),
+            datetime.datetime(2018, 12, 27, 16, 30)
+        )
+        self.assertEqual(
+            get_prev_closing(datetime.datetime(2019, 1, 4, 10)),
+            datetime.datetime(2018, 12, 28, 15, 15)
+        )
+        self.assertEqual(
+            get_prev_opening(datetime.datetime(2019, 1, 7, 10)),
+            datetime.datetime(2018, 12, 28, 16, 30)
+        )
+        self.assertEqual(
+            get_prev_opening(datetime.datetime(2019, 1, 7, 23)),
+            datetime.datetime(2019, 1, 4, 16, 30)
+        )
+        self.assertEqual(
+            get_prev_closing(datetime.datetime(2019, 1, 7, 23)),
+            datetime.datetime(2019, 1, 7, 15, 15)
         )
