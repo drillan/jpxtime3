@@ -14,7 +14,10 @@ datadir = os.path.dirname(os.path.abspath(__file__))
 
 class DaySession:
     def __init__(self, dt=datetime.now()):
-        self.opening = time(9, 0)
+        if dt >= datetime(2021, 9, 21):  # J-GATE3.0
+            self.opening = time(8, 45)
+        else:
+            self.opening = time(9, 0)
         self.pre_closing = time(15, 10)
         self.closing = time(15, 15)
 
@@ -22,7 +25,10 @@ class DaySession:
 class NightSession:
     def __init__(self, dt=datetime.now()):
         self.opening = time(16, 30)
-        if dt >= datetime(2016, 7, 19):
+        if dt >= datetime(2021, 9, 21):  # J-GATE3.0
+            self.pre_closing = time(5, 55)
+            self.closing = time(6, 0)
+        elif datetime(2016, 7, 19) <= dt < datetime(2021, 9, 21):
             self.pre_closing = time(5, 25)
             self.closing = time(5, 30)
         elif datetime(2011, 7, 19) <= dt < datetime(2016, 7, 19):
@@ -77,6 +83,10 @@ class Session:
     def _is_open(self):
         if self.session in (2, 5):
             return 0
+        # J-GATE3.0
+        elif datetime(2021, 9, 17, 15, 15) < self.dt <= datetime(2021, 9, 18, 5, 30):
+            return 0
+
         func_dict = {
             0: self.is_open_ses0,
             1: self.is_open_ses1,
@@ -263,7 +273,7 @@ def get_nominal_trading_day(dt):
 
 class SessionTime(Session):
     def __init__(self, dt):
-        super().__init__()
+        super().__init__(dt)
         nominal_trading_day = get_nominal_trading_day(dt)
         self.nominal_trading_day = nominal_trading_day
         self.opening_time_ds = datetime.combine(nominal_trading_day, self.ds.opening)
