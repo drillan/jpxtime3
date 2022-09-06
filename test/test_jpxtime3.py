@@ -54,6 +54,24 @@ class TestBool(unittest.TestCase):
         self.assertEqual(is_open(datetime.datetime(2021, 9, 22, 6, 0)), 2)
         self.assertEqual(is_open(datetime.datetime(2021, 9, 22, 6, 1)), 0)
         self.assertEqual(is_open(datetime.datetime(2021, 9, 22, 9, 0)), 1)
+        # 祝日取引 https://www.jpx.co.jp/derivatives/rules/holidaytrading/index.html
+        self.assertEqual(is_open(datetime.datetime(2022, 9, 23, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2022, 11, 3, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2022, 11, 23, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 1, 2, 9, 0)), 0)
+        self.assertEqual(is_open(datetime.datetime(2023, 1, 3, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 1, 9, 9, 0)), 0)
+        self.assertEqual(is_open(datetime.datetime(2023, 2, 23, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 3, 21, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 5, 3, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 5, 4, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 5, 5, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 7, 18, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 8, 11, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 9, 18, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 10, 9, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 11, 3, 9, 0)), 1)
+        self.assertEqual(is_open(datetime.datetime(2023, 11, 23, 9, 0)), 1)
 
 
 class TestTradingDay(unittest.TestCase):

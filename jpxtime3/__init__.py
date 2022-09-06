@@ -244,7 +244,7 @@ def get_t(t0, t1, year=365):
 
 
 def get_next_trading_day_adj(dt):
-    opening = DaySession().opening
+    opening = DaySession(dt).opening
     adj_dt = datetime.combine(dt.date(), opening)
     for _ in range(20):
         adj_dt = adj_dt + timedelta(days=1)
@@ -253,7 +253,7 @@ def get_next_trading_day_adj(dt):
 
 
 def get_prev_trading_day_adj(dt):
-    opening = DaySession().opening
+    opening = DaySession(dt).opening
     adj_dt = datetime.combine(dt.date(), opening)
     for _ in range(20):
         adj_dt = adj_dt - timedelta(days=1)
